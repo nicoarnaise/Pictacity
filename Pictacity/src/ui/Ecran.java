@@ -8,7 +8,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 
-public class Ecran extends JFrame implements ActionListener, Affichage, Listeur{
+public class Ecran extends JFrame implements ActionListener{
 	
 	/**
 	 * 
@@ -55,6 +55,9 @@ public class Ecran extends JFrame implements ActionListener, Affichage, Listeur{
 		fonctions.add(newFnct);
 		menu.add(fonctions);
 		this.setJMenuBar(menu);
+		
+		enregistrer.addActionListener(this);
+		ouvrir.addActionListener(this);
 		
 		String[] list = {"Fonction 1", "Fonction 2", "Fonction 3"};
 		listFnct = new JList<String>(list);
@@ -111,10 +114,16 @@ public class Ecran extends JFrame implements ActionListener, Affichage, Listeur{
 			enregistrer();
 		}
 		else if (source==ouvProj){
-			ouvrir();
+			ouvrirProjet();
 		}
 		else if (source==newProj){
 			nouveau();
+		}
+		else if (source==ouvrir){
+			ouvrirImage();
+		}
+		else if (source==enregistrer){
+			enregistrer();
 		}
 	}
 	
@@ -131,29 +140,49 @@ public class Ecran extends JFrame implements ActionListener, Affichage, Listeur{
 	    }
 	}
 	
-	public void ouvrir(){
+	public String ouvrir(){
 		JFileChooser dialog = new JFileChooser();
 		if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			String path = dialog.getSelectedFile().getAbsolutePath();
+			String path = dialog.getSelectedFile().getName();
 			// ................
 			System.out.println("Fichier ouvert "+path);
+			return path;
 		}
+		return "";
 	}
 	
-	public void enregistrer(){
+	public void ouvrirProjet(){
+		String path=ouvrir();
+		if (path!=""){
+			this.setTitle(path);
+		};
+	}
+	
+	public void ouvrirImage(){
+		String path=ouvrir();
+		if (path!=""){
+			nomFich.setText(path);
+		};	
+	}
+	
+	public boolean enregistrer(){
 		JFileChooser dialog = new JFileChooser();
 		if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 			String path = dialog.getSelectedFile().getAbsolutePath();
 			// ................
 			System.out.println("Fichier sauvegardé "+path);
+			return true;
+		}else{
+			return false;
 		}
 	}
 	
 	public void quitter(){
 		int option = JOptionPane.showConfirmDialog(null, "Voulez vous sauvgarder ?", "Sauvegarde", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (option == JOptionPane.OK_OPTION) {
-			enregistrer();
-			this.dispose();
+			if(enregistrer()){
+				this.dispose();
+			}
 		}
 		else if (option == JOptionPane.NO_OPTION){
 			this.dispose();
@@ -164,17 +193,5 @@ public class Ecran extends JFrame implements ActionListener, Affichage, Listeur{
 		Ecran e = new Ecran();
 		e.setBounds(100, 100, 1200, 700);
 		e.setVisible(true);
-	}
-
-	@Override
-	public void add(Object obj) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Object delete() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }
