@@ -1,7 +1,7 @@
 package fonctions;
 
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 public interface Traitement {
-	public Image applique(Image img);
+	public BufferedImage applique(BufferedImage img);
 }
