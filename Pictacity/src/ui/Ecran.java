@@ -157,6 +157,7 @@ public class Ecran extends JFrame implements ActionListener{
 			// ................
 			System.out.println("Fichier ouvert "+name);
 			return path;
+			
 		}
 		return "";
 	}
