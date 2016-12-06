@@ -1,12 +1,20 @@
 package ui;
 
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
+
+import fonctions.Flou;
+import fonctions.Traitement;
+import gestionFichier.FichierImage;
 
 public class Ecran extends JFrame implements ActionListener{
 	
@@ -18,9 +26,9 @@ public class Ecran extends JFrame implements ActionListener{
 	JMenuBar menu = new JMenuBar();
 	JMenu fichier = new JMenu("Fichier");
 	JMenu fonctions = new JMenu("Fonctions");
-	JMenuItem newProj = new JMenuItem("Nouveau Projet");
-	JMenuItem ouvProj = new JMenuItem("Ouvrir Projet");
-	JMenuItem enrProj = new JMenuItem("Enregistrer Projet");
+	//JMenuItem newProj = new JMenuItem("Nouveau Projet");
+	//JMenuItem ouvProj = new JMenuItem("Ouvrir Projet");
+	//JMenuItem enrProj = new JMenuItem("Enregistrer Projet");
 	JMenuItem quitter = new JMenuItem("Quitter");
 	JMenuItem newFnct = new JMenuItem("Nouvelle Fonction");
 	
@@ -43,12 +51,12 @@ public class Ecran extends JFrame implements ActionListener{
             	quitter();
             }
         });
-		newProj.addActionListener(this);
+		/*newProj.addActionListener(this);
 		fichier.add(newProj);
 		ouvProj.addActionListener(this);
 		fichier.add(ouvProj);
 		enrProj.addActionListener(this);
-		fichier.add(enrProj);
+		fichier.add(enrProj);*/
 		quitter.addActionListener(this);
 		fichier.add(quitter);
 		menu.add(fichier);
@@ -110,7 +118,7 @@ public class Ecran extends JFrame implements ActionListener{
 		if(source == quitter){			
 			quitter();
 		}
-		else if (source==enrProj){
+		/*else if (source==enrProj){
 			enregistrer();
 		}
 		else if (source==ouvProj){
@@ -118,7 +126,7 @@ public class Ecran extends JFrame implements ActionListener{
 		}
 		else if (source==newProj){
 			nouveau();
-		}
+		}*/
 		else if (source==ouvrir){
 			ouvrirImage();
 		}
@@ -143,9 +151,11 @@ public class Ecran extends JFrame implements ActionListener{
 	public String ouvrir(){
 		JFileChooser dialog = new JFileChooser();
 		if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			String path = dialog.getSelectedFile().getName();
+			File file = dialog.getSelectedFile(); 
+			String name = file.getName();
+			String path = file.getAbsolutePath();
 			// ................
-			System.out.println("Fichier ouvert "+path);
+			System.out.println("Fichier ouvert "+name);
 			return path;
 		}
 		return "";
@@ -162,14 +172,30 @@ public class Ecran extends JFrame implements ActionListener{
 		String path=ouvrir();
 		if (path!=""){
 			nomFich.setText(path);
-		};	
+		};
+		FichierImage fi=new FichierImage();
+		JLabel img = fi.load(path);
+		imgOri.add(img);
+		
+		
+		/*Traitement trait = new Flou();
+		Icon icon = img.getIcon();
+	    BufferedImage bi = new BufferedImage(icon.getIconWidth(),icon.getIconHeight(),BufferedImage.TYPE_INT_RGB);
+	    Graphics g = bi.createGraphics();
+	    icon.paintIcon(null, g, 0, 0);
+	    g.dispose();
+		BufferedImage bi2 = trait.applique(bi);
+		JLabel img2 = new JLabel();
+		img2.setIcon(new ImageIcon(bi2));
+		imgMod.add(img2);*/
 	}
 	
 	public boolean enregistrer(){
 		JFileChooser dialog = new JFileChooser();
 		if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 			String path = dialog.getSelectedFile().getAbsolutePath();
-			// ................
+			FichierImage fi=new FichierImage();
+			fi.save((JLabel)imgMod.getComponents()[0], path);
 			System.out.println("Fichier sauvegardé "+path);
 			return true;
 		}else{
