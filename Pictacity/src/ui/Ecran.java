@@ -14,6 +14,7 @@ import javax.swing.border.BevelBorder;
 
 import fonctions.Flou;
 import fonctions.Traitement;
+import gestionFichier.FichierFonction;
 import gestionFichier.FichierImage;
 
 public class Ecran extends JFrame implements ActionListener{
@@ -60,7 +61,14 @@ public class Ecran extends JFrame implements ActionListener{
 		quitter.addActionListener(this);
 		fichier.add(quitter);
 		menu.add(fichier);
+		
 		fonctions.add(newFnct);
+		FichierFonction ff = new FichierFonction();
+		Traitement[] mesTraitements=ff.load("src\\fonctions");
+		for (int i=0;i<mesTraitements.length;i++){
+			fonctions.add((JMenuItem) mesTraitements[i]);
+		}
+		
 		menu.add(fonctions);
 		this.setJMenuBar(menu);
 		

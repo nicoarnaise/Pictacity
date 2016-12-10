@@ -56,15 +56,22 @@ public class FichierFonction implements GestionFichier<Traitement[]> {
 		ArrayList<Class> liste = new ArrayList<Class>();
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		File dir = new File(cheminAbsolu);
+		//System.out.println(cheminAbsolu);
 		ArrayList<File> files = new ArrayList<File>(Arrays.asList(dir.listFiles(new FilenameFilter() {
 		    public boolean accept(File dir, String name) {
 		        return name.toLowerCase().endsWith(".java");
 		    }
 		})));
 		for(File f : files){
+			//System.out.println(f.getName());
+			String[] parts = f.getName().split("\\.");
 			String[] args = {f.getAbsolutePath()};
 			int ret = compiler.run(System.in, System.out, System.err, args);
-			String name = f.getAbsolutePath().substring(0, f.getName().lastIndexOf("\\."));
+			String name = "";
+			for (int i=0;i<parts.length-1;i++){
+				name+=parts[i];
+			}
+			//System.out.println(name);
 			ClassLoader cl = this.getClass().getClassLoader();
 			try {
 				Class c = cl.loadClass(name+".class");
