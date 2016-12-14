@@ -1,7 +1,5 @@
 package ui;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,15 +7,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 
-import fonctions.Flou;
 import fonctions.Traitement;
 import gestionFichier.FichierFonction;
 import gestionFichier.FichierImage;
@@ -47,14 +42,13 @@ public class Ecran extends JFrame implements ActionListener{
 	JButton sup = new JButton("x");
 	JPanel imgAct = new JPanel();
 	JList<String> listFnct;
-	JPanel imgOri = new JPanel();
-	JPanel imgMod = new JPanel();
+	ScalablePane imgOri = new ScalablePane();
+	ScalablePane imgMod = new ScalablePane();
 	JButton ouvrir = new JButton("OUVRIR");
 	JLabel nomFich = new JLabel("nom de l'image d'origine");
 	JButton enregistrer = new JButton("ENREGISTRER");
-	JProgressBar progress = new JProgressBar();
 	FichierFonction ff;
-	
+	private String pathImg = "";
 	
 	public Ecran(){
 		this.setDefaultCloseOperation(Ecran.DO_NOTHING_ON_CLOSE);
@@ -99,21 +93,15 @@ public class Ecran extends JFrame implements ActionListener{
 		list.addElement("Aucun traitement");
 		listFnct = new JList<String>(list);
 		listFnct.setBorder(BorderFactory.createTitledBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED), "Liste des fonctions appliquées :"));
-		listFnct.setFixedCellWidth(300);
+		listFnct.setFixedCellWidth(200);
 		imgOri.setBorder(BorderFactory.createRaisedSoftBevelBorder());
 		imgMod.setBorder(BorderFactory.createRaisedSoftBevelBorder());
 		nomFich.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		progress.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		
 		
 		layout = new GroupLayout(this.getContentPane());
 		this.getContentPane().setLayout(layout);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
-		
-		progress.setString("import");
-		progress.setValue(50);
-		progress.setStringPainted(true);
 		
 		layout.setHorizontalGroup(
 				  layout.createSequentialGroup()
@@ -129,9 +117,7 @@ public class Ecran extends JFrame implements ActionListener{
 				    		  .addComponent(down))
 				      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 				           .addComponent(imgMod)
-				           .addGroup(layout.createSequentialGroup()
-				               .addComponent(enregistrer)
-				        	   .addComponent(progress)))
+				           .addComponent(enregistrer))
 				);
 		layout.setVerticalGroup(
 				  layout.createSequentialGroup()
@@ -147,7 +133,6 @@ public class Ecran extends JFrame implements ActionListener{
 				    	   .addComponent(ouvrir)
 				    	   .addComponent(nomFich)
 				    	   .addComponent(enregistrer))
-				      .addComponent(progress)
 				);
 	}
 	
@@ -231,40 +216,24 @@ public class Ecran extends JFrame implements ActionListener{
 
 		LinkedList<Traitement> traitements = (LinkedList<Traitement>)PileTraitement.getInstance().getQueue().clone();
 		if(traitements.isEmpty()){
-			imgMod.removeAll();
-			Icon icon = ((JLabel) imgOri.getComponents()[0]).getIcon();
-			imgMod.add(new JLabel(icon));
+			FichierImage fi = new FichierImage();
+			imgMod.setPane(fi.load(pathImg));
 		}else{
 		try {
-			Icon icon = ((JLabel) imgOri.getComponents()[0]).getIcon();
-			BufferedImage bi = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(),
-					BufferedImage.TYPE_INT_RGB);
-			Graphics g = bi.createGraphics();
-			icon.paintIcon(null, g, 0, 0);
-			g.dispose();
+			Image icon = imgOri.getImage();
+			BufferedImage bi = (BufferedImage)icon;
 			BufferedImage bi2 = traitements.poll().applique(bi);
-			JLabel img2 = new JLabel();
-			img2.setIcon(new ImageIcon(bi2));
-			imgMod.removeAll();
-			imgMod.add(img2);
+			imgMod.setPane(new ScalablePane(bi2));
 		} catch (ClassCastException execpt) {
 		}
 		while (!traitements.isEmpty()) {
 			try {
-				Icon icon = ((JLabel) imgMod.getComponents()[0]).getIcon();
-				BufferedImage bi = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(),
-						BufferedImage.TYPE_INT_RGB);
-				Graphics g = bi.createGraphics();
-				icon.paintIcon(null, g, 0, 0);
-				g.dispose();
+				Image icon = imgMod.getImage();
+				BufferedImage bi = (BufferedImage)icon;
 				BufferedImage bi2 = traitements.poll().applique(bi);
-				JLabel img2 = new JLabel();
-				img2.setIcon(new ImageIcon(bi2));
-				imgMod.removeAll();
-				imgMod.add(img2);
+				imgMod.setPane(new ScalablePane(bi2));
 			} catch (ClassCastException execpt) {
 			}
-
 		}}
 		this.invalidate();
 		this.validate();
@@ -309,27 +278,13 @@ public class Ecran extends JFrame implements ActionListener{
 	}
 	
 	public void ouvrirImage(){
-		String path=ouvrir();
-		if (path!=""){
-			nomFich.setText(path);
+		pathImg=ouvrir();
+		if (pathImg!=""){
+			nomFich.setText(pathImg);
 		};
 		FichierImage fi=new FichierImage();
-		JLabel img = fi.load(path);
-		imgOri.add(img);
-		JLabel img2 = fi.load(path);
-		imgMod.add(img2);
-		
-		
-		/*Traitement trait = new Flou();
-		Icon icon = img.getIcon();
-	    BufferedImage bi = new BufferedImage(icon.getIconWidth(),icon.getIconHeight(),BufferedImage.TYPE_INT_RGB);
-	    Graphics g = bi.createGraphics();
-	    icon.paintIcon(null, g, 0, 0);
-	    g.dispose();
-		BufferedImage bi2 = trait.applique(bi);
-		JLabel img2 = new JLabel();
-		img2.setIcon(new ImageIcon(bi2));
-		imgMod.add(img2);*/
+		imgOri.setPane(fi.load(pathImg));
+		imgMod.setPane(fi.load(pathImg));
 	}
 	
 	public boolean enregistrer(){
@@ -337,7 +292,7 @@ public class Ecran extends JFrame implements ActionListener{
 		if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 			String path = dialog.getSelectedFile().getAbsolutePath();
 			FichierImage fi=new FichierImage();
-			fi.save((JLabel)imgMod.getComponents()[0], path);
+			fi.save(imgMod, path);
 			System.out.println("Fichier sauvegardé "+path);
 			return true;
 		}else{

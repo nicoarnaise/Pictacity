@@ -94,16 +94,20 @@ public class FichierFonction implements GestionFichier<Traitement[]> {
 	public Class[] traiterCompilation() {
 		ArrayList<Class> liste = new ArrayList<Class>();
 		File dir = new File("functions","fonctions");
-		ArrayList<File> files = new ArrayList<File>(Arrays.asList(dir.listFiles(new FilenameFilter() {
-		    public boolean accept(File dir, String name) {
-		        return name.toLowerCase().endsWith(".class");
-		    }
-		})));
-		for(File f : files){
+		if(!dir.exists()){
+			dir.mkdirs();
+			Class[] a = {};
+			return a;
+		}else{
+			ArrayList<File> files = new ArrayList<File>(Arrays.asList(dir.listFiles(new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return name.toLowerCase().endsWith(".class");
+				}
+			})));
+			for (File f : files) {
 				URLClassLoader classLoader = null;
 				try {
-					classLoader = new URLClassLoader(
-							new URL[] { new File("functions").toURI().toURL() });
+					classLoader = new URLClassLoader(new URL[] { new File("functions").toURI().toURL() });
 					System.out.println(new File("functions").toURI().toURL().toString());
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
@@ -123,8 +127,9 @@ public class FichierFonction implements GestionFichier<Traitement[]> {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}
+			Class[] a = {};
+			return liste.toArray(a);
 		}
-		Class[] a = {};
-		return liste.toArray(a);
 	}
 }

@@ -1,35 +1,35 @@
 package gestionFichier;
 
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 
-public class FichierImage implements GestionFichier<JLabel> {
+import ui.ScalablePane;
+
+
+public class FichierImage implements GestionFichier<ScalablePane> {
 
 	@Override
-	public JLabel load(String path) {
+	public ScalablePane load(String path) {
 
-		ImageIcon icon = new ImageIcon(path);
-		JLabel img = new JLabel(icon);
-
+		ScalablePane img = null;
+		try {
+			BufferedImage image = ImageIO.read(new File(path));
+			img = new ScalablePane(image);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return img;
 	}
 
 	@Override
-	public void save(JLabel object, String path) {
-		try {
-			Icon icon = object.getIcon();
-		    BufferedImage bi = new BufferedImage(icon.getIconWidth(),icon.getIconHeight(),BufferedImage.TYPE_INT_RGB);
-		    Graphics g = bi.createGraphics();
-		    icon.paintIcon(null, g, 0, 0);
-		    g.dispose();
+	public void save(ScalablePane object, String path) {
+		try {			
+		    BufferedImage bi = (BufferedImage)object.getImage();
 		    File outputfile = new File(path);
 		    String extension = path.split("\\.")[path.split("\\.").length-1];
 		    ImageIO.write(bi, extension, outputfile);
